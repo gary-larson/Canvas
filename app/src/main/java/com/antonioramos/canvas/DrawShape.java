@@ -22,9 +22,9 @@ public class DrawShape extends View {
     private int lineColor;
     private float x_begin,y_begin;
     private float x_end,y_end;
-    private boolean checkLine = false;
-
+    private int lineWeight =1;
     ArrayList<Lines> lines;
+    Lines l;
 
     public DrawShape(Context context) {
         super(context);
@@ -43,7 +43,7 @@ public class DrawShape extends View {
 
     private void setup(AttributeSet attributeSet){
         lines = new ArrayList<>();
-        lineColor = Color.BLACK;
+        lineColor = Color.BLACK;   //******To Gary******* change when you add color method
         drawShape = new Paint();
         drawShape.setColor(lineColor);
         drawShape.setStyle(Paint.Style.STROKE);
@@ -55,14 +55,16 @@ public class DrawShape extends View {
         super.onDraw(canvas);
 
         for(Lines l : lines) {
-            canvas.drawLine(l.x_start, l.y_start, l.x_stop, l.y_stop, drawShape);
+            drawShape.setStrokeWidth(l.strokeWidth); //is used to update line weight
+            canvas.drawLine(l.x_start, l.y_start, l.x_stop, l.y_stop, drawShape); //used to redraw old lines
         }
-            canvas.drawLine(x_begin, y_begin, x_end, y_end, drawShape);
+            canvas.drawLine(x_begin, y_begin, x_end, y_end, drawShape); // draw current line
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()){
+           //save start points to variables and invalidates
             case MotionEvent.ACTION_DOWN:
                 x_begin =event.getX();
                 y_begin =event.getY();
@@ -70,43 +72,48 @@ public class DrawShape extends View {
                 y_end= event.getY();
                 invalidate();
                 break;
+            //save finger drag points and invalidates
             case MotionEvent.ACTION_MOVE:
                 x_end = event.getX();
                 y_end= event.getY();
                 invalidate();
                 break;
+            //saves last point, create new object with start and end points, adds object to ArrayList
             case MotionEvent.ACTION_UP:
                 x_end = event.getX();
                 y_end= event.getY();
-                Lines l = new Lines(x_begin,y_begin,x_end,y_end);
+                l = new Lines(x_begin,y_begin,x_end,y_end,lineWeight);
                 lines.add(l);
                 invalidate();
                 break;
-
         }
 
         return true;
     }
+    //sets line weight, create new object and pass line data and adds object to ArrayList
+    //this method ensures only future lines are effected by line weight setting
     public void setLineWeight(int weight){
-        weight = 2*weight;
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,weight,dm);
-        drawShape.setStrokeWidth(strokeWidth);
-        invalidate();
-
+        lineWeight = weight;
+        l = new Lines(0,0,0,0, weight);
+        lines.add(l);
     }
-
+    //class saves line data
     private class Lines{
         float x_start,x_stop ;
         float y_start, y_stop;
+        int setWeight;
+        float strokeWidth;
 
 
-        Lines(float x, float y, float xx, float yy){
+        Lines(float x, float y, float xx, float yy, int weight){
             x_start =x;
             y_start =y;
             x_stop =xx;
             y_stop=yy;
+            setWeight = weight;
 
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,setWeight,dm);
         }
 
     }
