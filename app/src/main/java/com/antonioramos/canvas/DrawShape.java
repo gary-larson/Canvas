@@ -23,6 +23,7 @@ public class DrawShape extends View {
     private float x_begin,y_begin;
     private float x_end,y_end;
     private int lineWeight =1;
+    private int currentColor = Color.BLACK;
     ArrayList<Lines> lines;
     Lines l;
 
@@ -43,7 +44,8 @@ public class DrawShape extends View {
 
     private void setup(AttributeSet attributeSet){
         lines = new ArrayList<>();
-        lineColor = Color.BLACK;   //******To Gary******* change when you add color method
+        lineColor = currentColor;   //******To Gary******* change when you add color method the only time this is called is in the constructor
+        // so it does not change the color
         drawShape = new Paint();
         drawShape.setColor(lineColor);
         drawShape.setStyle(Paint.Style.STROKE);
@@ -116,6 +118,10 @@ public class DrawShape extends View {
             strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,setWeight,dm);
         }
 
+    }
+
+    public void setColor (int color) {
+        currentColor = color;
     }
 
 }

@@ -1,11 +1,14 @@
 package com.antonioramos.canvas;
 
+import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
@@ -14,9 +17,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener
-       {
+{
+
+    private static final int COLOR_RESULT = 110;
+    public static final String COLOR_CHOICE_KEY = "currentColor";
 
 
     @Override
@@ -66,6 +73,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_color) {
+            Intent intent = new Intent(getApplicationContext(), ColorActivity.class);
+            startActivityForResult(intent, COLOR_RESULT);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -85,5 +95,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        if (requestCode == COLOR_RESULT) {
+            if (resultCode == RESULT_OK) {
+                if (data.hasExtra(COLOR_CHOICE_KEY)) {
+                    int colorChoice = data.getIntExtra(COLOR_CHOICE_KEY, Color.BLACK);
+                    DrawShape drawShape =(DrawShape)findViewById(R.id.canvas);
+                    drawShape.setColor(colorChoice);
+                }
+            } else if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(this, "Request Canceled", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
 }
