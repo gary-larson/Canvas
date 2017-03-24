@@ -1,5 +1,6 @@
 package com.antonioramos.canvas;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -19,8 +20,22 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener
 {
+    private static final String DATA_FILE = "canvas.txt";
+    private ArrayList<Lines> lines = new ArrayList<>();
+    //  private List<Lines> returnList = new ArrayList<>();
+    private DrawShape drawShape;
+    private int count = -1;
+    private Lines  help;
 
     private static final int COLOR_RESULT = 110;
     public static final String COLOR_CHOICE_KEY = "currentColor";
@@ -42,6 +57,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         .setAction("Action", null).show();
             }
         });
+
+        findViewById(R.id.lock_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DrawShape drawShape =(DrawShape)findViewById(R.id.canvas);
+                drawShape.setLock(true);
+            }
+        });
+        findViewById(R.id.unLock_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DrawShape drawShape =(DrawShape)findViewById(R.id.canvas);
+                drawShape.unLock(false);
+            }
+        });
+
 
         setSpinner(R.id.line_spinner,R.array.lineWeight_spinner);
 
@@ -79,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
         return super.onOptionsItemSelected(item);
     }
-
+//else if (id == R.id.action_color)
 
     //*****************************************************************************************
     // Spinner method changes line weight
@@ -110,6 +141,91 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        readData();
+
+
+        DrawShape drawShape = (DrawShape) findViewById(R.id.canvas);
+        drawShape.setList(lines);
+
+
+    }
+    public void readData(){
+        try {
+
+            FileInputStream fis = openFileInput(DATA_FILE);
+
+            ObjectInputStream objectInStream = new ObjectInputStream(fis);
+
+            count = objectInStream.readInt(); // Get the number of regions
+
+            lines = (ArrayList<Lines>) objectInStream.readObject();
+
+            fis.close();
+        }catch (FileNotFoundException e) {
+            // Log.i("INFO", "---------- Read Exception");
+            // ok if file does not exist
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            Log.e("WRITE_ERR", "Cannot save data: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        drawShape = (DrawShape) findViewById(R.id.canvas);
+        lines = drawShape.getList();
+        Log.e("size", "***" +lines.size());
+        saveData();
+
+
+
+    }
+    public void saveData() {
+        drawShape = (DrawShape) findViewById(R.id.canvas);
+        lines = drawShape.getList();
+
+        Log.e("size", "***" +lines.size());
+
+
+        try {
+
+            FileOutputStream fis = openFileOutput(DATA_FILE, Context.MODE_PRIVATE);
+            //new FileOutputStream(new File(getFilesDir(),DATA_FILE));//
+            //
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fis);
+
+            objectOutputStream.writeInt(lines.size());
+            Log.e("size", "***" +lines.size());
+
+            for(Lines line:lines){
+                objectOutputStream.writeObject(lines);
+            }
+            fis.close();
+
+
+            Log.e("wirteData", "*************************************************** ");
+
+            //********************************************************************
+            //if file not found will display toast message and create a StackTraces message
+            //********************************************************************
+        } catch (FileNotFoundException e) {
+            Log.e("WRITE_ERR", "Cannot save data: " + e.getMessage());
+            e.printStackTrace();
+            //Toast.makeText(this, "Error saving data", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("WRITE_ERR", "Cannot save data: " + e.getMessage());
         }
     }
 }
