@@ -5,8 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -43,7 +41,7 @@ public class ColorActivity extends AppCompatActivity {
                 return false;
             }
         });
-        Button b = (Button) findViewById(R.id.button);
+        Button b = (Button) findViewById(R.id.lock_button);
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

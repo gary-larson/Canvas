@@ -65,6 +65,18 @@
                 android:id="@+id/textView"
                 android:background="#000000"/>
 
+            <Button
+                android:text="Lock Start Point"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/lock_button" />
+
+            <Button
+                android:text="Unlock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/unLock_button" />
+
         </LinearLayout>
     </ScrollView>
 

@@ -19,13 +19,14 @@ import java.util.ArrayList;
 
 public class DrawShape extends View {
     private Paint drawShape;
-    private int lineColor;
     private float x_begin,y_begin;
     private float x_end,y_end;
-    private int lineWeight =1;
     private int currentColor = Color.BLACK;
+    float strokeWidth =1;
     ArrayList<Lines> lines;
-    Lines l;
+    Lines newLine;
+    boolean lockPoint = false;
+    boolean lock= false;
 
     public DrawShape(Context context) {
         super(context);
@@ -44,10 +45,8 @@ public class DrawShape extends View {
 
     private void setup(AttributeSet attributeSet){
         lines = new ArrayList<>();
-        lineColor = currentColor;   //******To Gary******* change when you add color method the only time this is called is in the constructor
-        // so it does not change the color
         drawShape = new Paint();
-        drawShape.setColor(lineColor);
+        drawShape.setColor(currentColor);
         drawShape.setStyle(Paint.Style.STROKE);
         drawShape.setAntiAlias(true);
     }
@@ -56,9 +55,10 @@ public class DrawShape extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        for(Lines l : lines) {
-            drawShape.setStrokeWidth(l.strokeWidth); //is used to update line weight
-            canvas.drawLine(l.x_start, l.y_start, l.x_stop, l.y_stop, drawShape); //used to redraw old lines
+        for(Lines newLine : lines) {
+            drawShape.setColor(newLine.currentColor);
+            drawShape.setStrokeWidth(newLine.strokeWidth); //is used to update line weight
+            canvas.drawLine(newLine.x_start, newLine.y_start, newLine.x_stop, newLine.y_stop, drawShape); //used to redraw old lines
         }
             canvas.drawLine(x_begin, y_begin, x_end, y_end, drawShape); // draw current line
     }
@@ -68,11 +68,15 @@ public class DrawShape extends View {
         switch (event.getAction()){
            //save start points to variables and invalidates
             case MotionEvent.ACTION_DOWN:
-                x_begin =event.getX();
-                y_begin =event.getY();
-                x_end = event.getX();
-                y_end= event.getY();
-                invalidate();
+                //this if statement helps control locking and unlocking start point
+                if(!lockPoint) {
+                    x_begin = event.getX();
+                    y_begin = event.getY();
+                    x_end = event.getX();
+                    y_end = event.getY();
+                    invalidate();
+                    lockPoint =lock;
+                }
                 break;
             //save finger drag points and invalidates
             case MotionEvent.ACTION_MOVE:
@@ -84,44 +88,45 @@ public class DrawShape extends View {
             case MotionEvent.ACTION_UP:
                 x_end = event.getX();
                 y_end= event.getY();
-                l = new Lines(x_begin,y_begin,x_end,y_end,lineWeight);
-                lines.add(l);
+                newLine = new Lines(x_begin,y_begin,x_end,y_end,strokeWidth, currentColor);
+                lines.add(newLine);
                 invalidate();
                 break;
         }
 
         return true;
     }
+    //set color to shapes
+    public void setColor(int color){
+        currentColor = color;
+    }
     //sets line weight, create new object and pass line data and adds object to ArrayList
     //this method ensures only future lines are effected by line weight setting
     public void setLineWeight(int weight){
-        lineWeight = weight;
-        l = new Lines(0,0,0,0, weight);
-        lines.add(l);
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,weight,dm);
+        newLine = new Lines(0,0,0,0, strokeWidth, currentColor);
+        lines.add(newLine);
     }
-    //class saves line data
-    private class Lines{
-        float x_start,x_stop ;
-        float y_start, y_stop;
-        int setWeight;
-        float strokeWidth;
+    //redraws canvas
+    public void setList(ArrayList<Lines> line){
+        lines = line;
+        invalidate();
+    }
+    //passes line arraylist to main for saving
+    public ArrayList<Lines> getList(){
 
-
-        Lines(float x, float y, float xx, float yy, int weight){
-            x_start =x;
-            y_start =y;
-            x_stop =xx;
-            y_stop=yy;
-            setWeight = weight;
-
-            DisplayMetrics dm = getResources().getDisplayMetrics();
-            strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,setWeight,dm);
-        }
+        return lines;
 
     }
-
-    public void setColor (int color) {
-        currentColor = color;
+    //locks start point
+    public void setLock(boolean lockStartPoint){
+       lock = lockStartPoint;
     }
+    //unlocks start point
+    public void unLock(boolean unlockStartPoint){
+        lockPoint =lock = unlockStartPoint;
+    }
+
 
 }
