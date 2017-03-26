@@ -133,6 +133,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
              */
         } else if (id == R.id.action_line) {
             shapeType = "line";
+        } else if (id == R.id.action_about) {
+            Intent intent = new Intent(getApplicationContext(), AboutActivity.class);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }
