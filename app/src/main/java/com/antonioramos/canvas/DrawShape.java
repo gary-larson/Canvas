@@ -13,6 +13,8 @@ import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
 
+import static com.antonioramos.canvas.R.id.canvas;
+
 /**
  * Created by antonio on 3/21/2017.
  */
@@ -24,6 +26,7 @@ public class DrawShape extends View {
     private int currentColor = Color.BLACK;
     float strokeWidth =1;
     ArrayList<Lines> lines;
+    ArrayList<MyShape> shapes;
     Lines newLine;
     boolean lockPoint = false;
     boolean lock= false;
@@ -45,6 +48,7 @@ public class DrawShape extends View {
 
     private void setup(AttributeSet attributeSet){
         lines = new ArrayList<>();
+        shapes = new ArrayList<>();
         drawShape = new Paint();
         drawShape.setColor(currentColor);
         drawShape.setStyle(Paint.Style.STROKE);
@@ -54,13 +58,28 @@ public class DrawShape extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
+/*
         for(Lines newLine : lines) {
             drawShape.setColor(newLine.currentColor);
             drawShape.setStrokeWidth(newLine.strokeWidth); //is used to update line weight
             canvas.drawLine(newLine.x_start, newLine.y_start, newLine.x_stop, newLine.y_stop, drawShape); //used to redraw old lines
         }
             canvas.drawLine(x_begin, y_begin, x_end, y_end, drawShape); // draw current line
+            */
+        for(MyShape shape : shapes) {
+            drawShape.setColor(shape.currentColor);
+            drawShape.setStrokeWidth(shape.strokeWidth);
+            if (shape instanceof MyLine) {
+                canvas.drawLine(shape.x_start, shape.y_start, shape.x_stop, shape.y_stop, drawShape);
+            } else if (shape instanceof MyRectangle) {
+                canvas.drawRect(shape.x_start, shape.y_start, shape.x_stop, shape.y_stop, drawShape);
+            }
+        }
+        if (MainActivity.shapeType.equals("line")) {
+            canvas.drawLine(x_begin, y_begin, x_end, y_end, drawShape);
+        } else if (MainActivity.shapeType.equals("rectangle")) {
+            canvas.drawRect(x_begin, y_begin, x_end, y_end, drawShape);
+        }
     }
 
     @Override
@@ -88,8 +107,18 @@ public class DrawShape extends View {
             case MotionEvent.ACTION_UP:
                 x_end = event.getX();
                 y_end= event.getY();
-                newLine = new Lines(x_begin,y_begin,x_end,y_end,strokeWidth, currentColor);
-                lines.add(newLine);
+             //   newLine = new Lines(x_begin,y_begin,x_end,y_end,strokeWidth, currentColor);
+             //   lines.add(newLine);
+                /*
+                Created by Gary to accommodate multiple shapes
+                 */
+                if (MainActivity.shapeType.equals("line")) {
+                    MyLine newMyLine = new MyLine(x_begin,y_begin,x_end,y_end,strokeWidth, currentColor);
+                    shapes.add(newMyLine);
+                } else if (MainActivity.shapeType.equals("rectangle")) {
+                    MyRectangle newMyRectangle = new MyRectangle(x_begin,y_begin,x_end,y_end,strokeWidth, currentColor);
+                    shapes.add(newMyRectangle);
+                }
                 invalidate();
                 break;
         }
@@ -109,8 +138,19 @@ public class DrawShape extends View {
         lines.add(newLine);
     }
     //redraws canvas
-    public void setList(ArrayList<Lines> line){
+    /*
+    removed by Gary for replacement function
+     */
+ /*   public void setList(ArrayList<Lines> line){
         lines = line;
+        invalidate();
+    } */
+
+    /*
+    Created by Gary to work with shapes
+     */
+    public void setList(ArrayList<MyShape> shapes){
+        this.shapes = shapes;
         invalidate();
     }
     //passes line arraylist to main for saving
@@ -118,6 +158,10 @@ public class DrawShape extends View {
 
         return lines;
 
+    }
+
+    public ArrayList<MyShape> getMyList() {
+        return shapes;
     }
     //locks start point
     public void setLock(boolean lockStartPoint){

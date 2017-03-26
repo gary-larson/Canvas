@@ -1,3 +1,11 @@
+/*
+* Developed by Antonio Ramos and Gary Larson
+* These are the 4 additional features
+* 1) using a spinner to set the line width
+* 2) saving what was drawn
+* 3) colorpicker
+* 4)
+ */
 package com.antonioramos.canvas;
 
 import android.content.Context;
@@ -32,10 +40,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 {
     private static final String DATA_FILE = "canvas.txt";
     private ArrayList<Lines> lines = new ArrayList<>();
+    private ArrayList<MyShape> shapes = new ArrayList<>();
     //  private List<Lines> returnList = new ArrayList<>();
     private DrawShape drawShape;
     private int count = -1;
     private Lines  help;
+    public static String shapeType = "line";
 
     private static final int COLOR_RESULT = 110;
     public static final String COLOR_CHOICE_KEY = "currentColor";
@@ -104,9 +114,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+            /*
+            created by Gary
+            calls intent to select a color
+             */
         } else if (id == R.id.action_color) {
             Intent intent = new Intent(getApplicationContext(), ColorActivity.class);
             startActivityForResult(intent, COLOR_RESULT);
+            /*
+            Created by Gary
+            sets ShapeType to rectangle
+             */
+        } else if (id == R.id.action_rectangle) {
+            shapeType = "rectangle";
+            /*
+            Created by Gary
+            sets ShapeType to rectangle
+             */
+        } else if (id == R.id.action_line) {
+            shapeType = "line";
         }
         return super.onOptionsItemSelected(item);
     }
@@ -126,6 +152,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
+    /*
+    Code created by Gary
+    retrieves the result from calling the intent ColorActivity to select a color
+    then sets the drawShape color
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -152,20 +183,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
         DrawShape drawShape = (DrawShape) findViewById(R.id.canvas);
-        drawShape.setList(lines);
+      //  drawShape.setList(lines);
+        drawShape.setList(shapes);
 
 
     }
     public void readData(){
         try {
-
+            Log.i("READ", "entered read");
             FileInputStream fis = openFileInput(DATA_FILE);
 
             ObjectInputStream objectInStream = new ObjectInputStream(fis);
 
-            count = objectInStream.readInt(); // Get the number of regions
+          //  count = objectInStream.readInt(); // Get the number of regions
 
-            lines = (ArrayList<Lines>) objectInStream.readObject();
+         //   lines = (ArrayList<Lines>) objectInStream.readObject();
+            // replaced above to save ArrayList<MyShape>
+            shapes = (ArrayList<MyShape>) objectInStream.readObject();
 
             fis.close();
         }catch (FileNotFoundException e) {
@@ -194,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void saveData() {
         drawShape = (DrawShape) findViewById(R.id.canvas);
         lines = drawShape.getList();
+        shapes = drawShape.getMyList();
 
         Log.e("size", "***" +lines.size());
 
@@ -205,12 +240,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             //
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fis);
 
-            objectOutputStream.writeInt(lines.size());
-            Log.e("size", "***" +lines.size());
+   //         objectOutputStream.writeInt(shapes.size());
+    //        objectOutputStream.writeInt(lines.size());
+     //       Log.e("size", "***" +lines.size());
 
-            for(Lines line:lines){
+    /*        for(Lines line:lines){
                 objectOutputStream.writeObject(lines);
-            }
+            } */
+
+   //         for(MyShape shape : shapes) {
+            // replaced above to save ArrayList<MyShape>
+                objectOutputStream.writeObject(shapes);
+     //       }
             fis.close();
 
 
