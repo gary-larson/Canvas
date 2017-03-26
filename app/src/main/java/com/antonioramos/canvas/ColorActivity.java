@@ -1,3 +1,8 @@
+/*
+Created by Gary
+Activity to select and return a color
+ */
+
 package com.antonioramos.canvas;
 
 import android.content.Intent;
@@ -15,7 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class ColorActivity extends AppCompatActivity {
-
+    // sets default for selectedColor
     int selectedColor = Color.BLUE;
 
     @Override
@@ -25,6 +30,10 @@ public class ColorActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /*
+        created by Gary
+        sets up on touch listener to get the color the user clicks/touchs
+         */
         ImageView iv = (ImageView) findViewById(R.id.imageView);
         final Bitmap bitmap = ((BitmapDrawable)iv.getDrawable()).getBitmap();
         iv.setOnTouchListener(new View.OnTouchListener(){
@@ -36,12 +45,17 @@ public class ColorActivity extends AppCompatActivity {
 
                 TextView tv = (TextView) findViewById(R.id.textView);
                 tv.setBackgroundColor(pixel);
+                // set instance variable with the selected color
                 selectedColor = pixel;
 
                 return false;
             }
         });
         Button b = (Button) findViewById(R.id.lock_button);
+        /*
+        Created by Gary
+        set up button listener to return to calling activity
+         */
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -50,6 +64,10 @@ public class ColorActivity extends AppCompatActivity {
         });
     }
 
+    /*
+    Created by Gary
+    Closes and returns color chosen by user
+     */
     @Override
     public void finish() {
         Intent intent = new Intent();

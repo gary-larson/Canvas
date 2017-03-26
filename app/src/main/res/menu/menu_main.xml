@@ -8,6 +8,11 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_line"
+        android:orderInCategory="60"
+        android:title="@string/action_line"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_rectangle"
         android:orderInCategory="60"
         android:title="@string/action_rectangle"
