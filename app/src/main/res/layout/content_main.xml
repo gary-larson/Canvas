@@ -84,6 +84,12 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/ball_button" />
 
+            <Button
+                android:text="Stop ball"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/stop_button" />
+
         </LinearLayout>
     </ScrollView>
 

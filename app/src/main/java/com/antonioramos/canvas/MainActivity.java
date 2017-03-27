@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private static final int COLOR_RESULT = 110;
     public static final String COLOR_CHOICE_KEY = "currentColor";
+    int [] buttonId = {R.id.unLock_button,R.id.lock_button,R.id.ball_button,R.id.stop_button};
 
 
     @Override
@@ -57,6 +59,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
         setSpinner(R.id.line_spinner,R.array.lineWeight_spinner);
+
+        for(int id : buttonId){
+            Button operation = (Button) findViewById(id);
+            operation.setOnClickListener(this);
+
+        }
     }
     /*
    method to setup spinner -by Antonio
@@ -213,16 +221,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onClick(View view) {
         int id = view.getId();
         DrawShape drawShape =(DrawShape)findViewById(R.id.canvas);
-        drawShape.setLock(true);
+
 
         if(id == R.id.lock_button){
             drawShape.setLock(true);
         }
         else if(id == R.id.unLock_button){
-            drawShape.setLock(false);
+            drawShape.unLock(false);
         }
-        else{
+        else if (id == R.id.ball_button){
+            drawShape.addBall();
 
+        }
+        else {
+            drawShape.stop();
         }
     }
 }
