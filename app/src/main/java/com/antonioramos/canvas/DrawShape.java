@@ -75,7 +75,7 @@ public class DrawShape extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()){
-           //save start points to variables and invalidates
+            //save start points to variables and invalidates
             case MotionEvent.ACTION_DOWN:
                 //this if statement helps control locking and unlocking start point
                 if(!lockPoint) {
@@ -147,7 +147,7 @@ public class DrawShape extends View {
       locks start point in place -by Antonio
    */
     public void setLock(boolean lockStartPoint){
-       lock = lockStartPoint;
+        lock = lockStartPoint;
     }
     /*
      unlocks start point -by Antonio

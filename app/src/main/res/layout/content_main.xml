@@ -78,6 +78,12 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/unLock_button" />
 
+            <Button
+                android:text="Ball Draw"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/ball_button" />
+
         </LinearLayout>
     </ScrollView>
 
