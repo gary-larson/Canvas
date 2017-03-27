@@ -1,10 +1,28 @@
 /*
 * Developed by Antonio Ramos and Gary Larson
 * These are the 4 additional features
-* 1) using a spinner to set the line width
-* 2) saving what was drawn
-* 3) colorpicker
-* 4) lock/unlock starting point in place
+* 1) save drawing
+*   feature will allow user to save current drawing when onPause is active and redraw canvas when
+*   onResume is active
+*       methods used- MainActivity(readData, saveData, onPause, onResume)
+*                     DrawShape (getMyList, setList)
+*
+* 2) colorpicker
+* 3) lock/unlock starting point in place
+*    feature will lock starting point in place and allow user to draw different shape with the
+*    same starting point
+*       methods used-MainActivity (onClick) DrawShape (unLock, setLock, lockPoint(flag))
+* 4) Draw with ball
+*    feature will display animated ball and then draw ball's path
+*       methods used-MainActivity (onClick) DrawShape (addBall, stop, clearPointArray, ArrayLists,
+*       class AnimateThread,class Ball, onSizeChanged, Animated ball- created by Professor John Nicholson
+ *       modified by-Antonio Ramos)
+* 5)clear all and clear last
+*   feature will allow user to delete all drawings from canvas when selecting clear from menu.
+*   Allow user to delete last drawn item when clicking on Clear Last button.
+*       Methods used MainActivity (onOptionsItemSelected, onClick) Draw(clearOne, clearList,ClearPointArray,
+*           clearCurrentPoints
+*
  */
 package com.antonioramos.canvas;
 
@@ -24,6 +42,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,6 +65,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private static final int COLOR_RESULT = 110;
     public static final String COLOR_CHOICE_KEY = "currentColor";
+     private int [] buttonId = {R.id.lock_button,R.id.ball_button,R.id.clearLast_button};
+    private boolean checkLock;
+    private boolean checkBall;
 
 
     @Override
@@ -57,6 +79,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
         setSpinner(R.id.line_spinner,R.array.lineWeight_spinner);
+
+        for(int id : buttonId){
+            Button operation = (Button) findViewById(id);
+            operation.setOnClickListener(this);
+
+        }
     }
     /*
    method to setup spinner -by Antonio
@@ -213,16 +241,31 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onClick(View view) {
         int id = view.getId();
         DrawShape drawShape =(DrawShape)findViewById(R.id.canvas);
-        drawShape.setLock(true);
+
 
         if(id == R.id.lock_button){
-            drawShape.setLock(true);
+           if(!checkLock) {
+               checkLock = true;
+               drawShape.setLock(checkLock);
+           }
+            else{
+               checkLock =false;
+               drawShape.unLock(checkLock);
+           }
         }
-        else if(id == R.id.unLock_button){
-            drawShape.setLock(false);
-        }
-        else{
+        else if (id == R.id.ball_button){
+            if(!checkBall) {
+                checkBall = true;
+                drawShape.addBall();
+            }
+            else{
+                checkBall = false;
+                drawShape.stop();
+            }
 
+        }
+        else {
+            drawShape.clearOne();;
         }
     }
 }

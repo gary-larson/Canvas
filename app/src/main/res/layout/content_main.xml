@@ -67,16 +67,22 @@
                 android:background="#000000"/>
 
             <Button
-                android:text="Lock Start Point"
+                android:text="Lock/Unlock Start Point"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/lock_button" />
 
             <Button
-                android:text="Unlock"
+                android:text="Start/Stop Ball Draw"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/unLock_button" />
+                android:id="@+id/ball_button" />
+
+            <Button
+                android:text="Clear last"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/clearLast_button" />
 
         </LinearLayout>
     </ScrollView>

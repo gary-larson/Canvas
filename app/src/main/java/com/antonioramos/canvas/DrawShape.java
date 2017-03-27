@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import static com.antonioramos.canvas.R.id.canvas;
 
@@ -28,6 +29,25 @@ public class DrawShape extends View {
     ArrayList<MyShape> shapes;
     boolean lockPoint = false;
     boolean lock= false;
+    boolean ballDraw = false;
+
+    ArrayList<Integer> old_x =new ArrayList<>();
+    ArrayList<Integer> new_y = new ArrayList<>();
+    ArrayList<Integer> old_y = new ArrayList<>();
+    ArrayList<Integer> new_x = new ArrayList<>();
+    ArrayList<Integer> ballColor = new ArrayList<>();
+
+    int numberOfballs =0;
+
+    public  static final int BALL_SIZE_DPI=50;
+    public static final int BALL_STEP_DPI=30;
+    Paint ballPaint;
+    int currentWidth;
+    int currentHeight;
+    AnimateThread animateThread;
+    ArrayList<Ball>balls;
+    private Random random;
+
 
     public DrawShape(Context context) {
         super(context);
@@ -50,11 +70,17 @@ public class DrawShape extends View {
         drawShape.setColor(currentColor);
         drawShape.setStyle(Paint.Style.STROKE);
         drawShape.setAntiAlias(true);
+
+        random = new Random();
+        balls = new ArrayList<>();
+        ballPaint = new Paint();
+        ballPaint.setStyle(Paint.Style.FILL);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
 
         for(MyShape shape : shapes) {
             drawShape.setColor(shape.currentColor);
@@ -70,12 +96,22 @@ public class DrawShape extends View {
         } else if (MainActivity.shapeType.equals("rectangle")) {
             canvas.drawRect(x_begin, y_begin, x_end, y_end, drawShape);
         }
+        if(ballDraw) {
+            for (Ball ball : balls) {
+                ballPaint.setColor(ball.color);
+
+                canvas.drawOval(ball.x, ball.y,
+                        ball.x + ball.sizePixels, ball.y + ball.sizePixels,
+                        ballPaint);
+            }
+        }
+
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()){
-           //save start points to variables and invalidates
+            //save start points to variables and invalidates
             case MotionEvent.ACTION_DOWN:
                 //this if statement helps control locking and unlocking start point
                 if(!lockPoint) {
@@ -108,10 +144,7 @@ public class DrawShape extends View {
                     MyRectangle newMyRectangle = new MyRectangle(x_begin,y_begin,x_end,y_end,strokeWidth, currentColor);
                     shapes.add(newMyRectangle);
                 }
-                x_begin = 0f;
-                y_begin = 0f;
-                x_end = 0f;
-                y_end = 0f;
+
                 invalidate();
                 break;
         }
@@ -146,8 +179,31 @@ public class DrawShape extends View {
     clears the ArrayList<MyShape>
      */
     public void ClearList () {
+
         this.shapes.clear();
+        clearPointArray();
+        clearCurrentPoints();
+        lock = lockPoint = false;
+
+
         invalidate();
+    }
+
+    public void clearOne(){
+        int size = shapes.size()-1;
+        if(size > 0) {
+            shapes.remove(size);
+            clearCurrentPoints();
+            invalidate();
+        }else{
+            ClearList();
+        }
+    }
+    private void clearCurrentPoints(){
+        x_begin = 0f;
+        y_begin = 0f;
+        x_end = 0f;
+        y_end = 0f;
     }
 
     /*
@@ -160,7 +216,7 @@ public class DrawShape extends View {
       locks start point in place -by Antonio
    */
     public void setLock(boolean lockStartPoint){
-       lock = lockStartPoint;
+        lock = lockStartPoint;
     }
     /*
      unlocks start point -by Antonio
@@ -168,6 +224,130 @@ public class DrawShape extends View {
     public void unLock(boolean unlockStartPoint){
         lockPoint =lock = unlockStartPoint;
     }
+
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        currentHeight = h;
+        currentWidth = w;
+    }
+
+    public void addBall() {
+
+       if(numberOfballs < 1) {
+           ballDraw = true;
+           Ball ball = new Ball(BALL_SIZE_DPI, BALL_STEP_DPI);
+           balls.add(ball);
+           invalidate();
+           start();
+       }
+        numberOfballs++;
+    }
+
+    public void start() {
+        if (animateThread == null) {
+            animateThread = new AnimateThread();
+            animateThread.start();
+        }
+    }
+
+    public void stop() {
+        if (animateThread != null) {
+            animateThread.running = false;
+            animateThread = null;
+            ballDraw = false;
+            numberOfballs = 0;
+        }
+        MyLine newMyLine;
+        this.balls.clear();
+        for(int i = 0; i <new_x.size();i++){
+
+            newMyLine = new MyLine(old_x.get(i),old_y.get(i),new_x.get(i),new_y.get(i),strokeWidth,
+                    ballColor.get(i));
+            shapes.add(newMyLine);
+
+        }
+        clearPointArray();
+        invalidate();
+    }
+    private void clearPointArray(){
+        this.ballColor.clear();
+        this.new_x.clear();
+        this.new_y.clear();
+        this.old_x.clear();
+        this.old_y.clear();
+    }
+
+
+    private class AnimateThread extends Thread {
+
+
+        boolean running = true;
+
+
+        @Override
+        public void run() {
+            while (running) {
+                int size = balls.size();
+                if (size > 0) {
+
+                        Ball ball = balls.get(0);
+                        old_x.add(ball.x);
+                        old_y.add(ball.y);
+                        ballColor.add(ball.color);
+
+                        ball.x += ball.xStep;
+                        ball.y += ball.yStep;
+
+                        new_x.add(ball.x);
+                        new_y.add(ball.y);
+
+                        if (ball.x < 0) {
+                            ball.xStep = -ball.xStep;
+
+                        } else if (ball.x + ball.sizePixels-3 > currentWidth) {
+                            ball.xStep = -ball.xStep;
+                        }
+
+                        if (ball.y < 0) {
+                            ball.yStep = -ball.yStep;
+                        } else if (ball.y + ball.sizePixels > currentHeight) {
+                            ball.yStep = -ball.yStep;
+                        }
+
+                    postInvalidate();
+                }
+                try {
+                    sleep(50);
+                } catch (InterruptedException e) {
+                    running = false;
+                }
+            }
+        }
+    }
+
+    private class Ball {
+        int x;
+        int y;
+        float sizePixels;
+        float xStep;
+        float yStep;
+        int color;
+
+        Ball(int ballSizeDpi, int stepDpi) {
+            color = currentColor;
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            sizePixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, ballSizeDpi, dm);
+
+            xStep = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, stepDpi, dm);
+            yStep = xStep;
+
+            x = random.nextInt((int) (currentWidth - sizePixels));
+            y = random.nextInt((int) (currentHeight - sizePixels));
+        }
+    }
+
 
 
 }
