@@ -40,7 +40,7 @@ public class DrawShape extends View {
     int numberOfballs =0;
 
     public  static final int BALL_SIZE_DPI=50;
-    public static final int BALL_STEP_DPI=5;
+    public static final int BALL_STEP_DPI=30;
     Paint ballPaint;
     int currentWidth;
     int currentHeight;
@@ -144,12 +144,7 @@ public class DrawShape extends View {
                     MyRectangle newMyRectangle = new MyRectangle(x_begin,y_begin,x_end,y_end,strokeWidth, currentColor);
                     shapes.add(newMyRectangle);
                 }
-                /*
-                x_begin = 0f;
-                y_begin = 0f;
-                x_end = 0f;
-                y_end = 0f;
-                */
+
                 invalidate();
                 break;
         }
@@ -184,14 +179,31 @@ public class DrawShape extends View {
     clears the ArrayList<MyShape>
      */
     public void ClearList () {
+
         this.shapes.clear();
-        this.ballColor.clear();
-        this.new_x.clear();
-        this.new_y.clear();
-        this.old_x.clear();
-        this.old_y.clear();
+        clearPointArray();
+        clearCurrentPoints();
+        lock = lockPoint = false;
+
 
         invalidate();
+    }
+
+    public void clearOne(){
+        int size = shapes.size()-1;
+        if(size > 0) {
+            shapes.remove(size);
+            clearCurrentPoints();
+            invalidate();
+        }else{
+            ClearList();
+        }
+    }
+    private void clearCurrentPoints(){
+        x_begin = 0f;
+        y_begin = 0f;
+        x_end = 0f;
+        y_end = 0f;
     }
 
     /*
@@ -256,21 +268,31 @@ public class DrawShape extends View {
             shapes.add(newMyLine);
 
         }
+        clearPointArray();
         invalidate();
     }
+    private void clearPointArray(){
+        this.ballColor.clear();
+        this.new_x.clear();
+        this.new_y.clear();
+        this.old_x.clear();
+        this.old_y.clear();
+    }
+
 
     private class AnimateThread extends Thread {
 
 
         boolean running = true;
 
+
         @Override
         public void run() {
             while (running) {
                 int size = balls.size();
                 if (size > 0) {
-                    for (int i = 0; i < size; i++) {
-                        Ball ball = balls.get(i);
+
+                        Ball ball = balls.get(0);
                         old_x.add(ball.x);
                         old_y.add(ball.y);
                         ballColor.add(ball.color);
@@ -284,7 +306,7 @@ public class DrawShape extends View {
                         if (ball.x < 0) {
                             ball.xStep = -ball.xStep;
 
-                        } else if (ball.x + ball.sizePixels > currentWidth) {
+                        } else if (ball.x + ball.sizePixels-3 > currentWidth) {
                             ball.xStep = -ball.xStep;
                         }
 
@@ -293,7 +315,7 @@ public class DrawShape extends View {
                         } else if (ball.y + ball.sizePixels > currentHeight) {
                             ball.yStep = -ball.yStep;
                         }
-                    }
+
                     postInvalidate();
                 }
                 try {
@@ -314,8 +336,7 @@ public class DrawShape extends View {
         int color;
 
         Ball(int ballSizeDpi, int stepDpi) {
-            color = random.nextInt(0x1000000) + 0xff000000;
-
+            color = currentColor;
             DisplayMetrics dm = getResources().getDisplayMetrics();
             sizePixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, ballSizeDpi, dm);
 
