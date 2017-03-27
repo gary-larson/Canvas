@@ -10,13 +10,11 @@
     <item
         android:id="@+id/action_line"
         android:orderInCategory="60"
-        android:title="@string/action_line"
-        app:showAsAction="never" />
+        android:title="@string/action_line" />
     <item
         android:id="@+id/action_rectangle"
         android:orderInCategory="60"
-        android:title="@string/action_rectangle"
-        app:showAsAction="never" />
+        android:title="@string/action_rectangle" />
     <item
         android:id="@+id/action_color"
         android:orderInCategory="80"

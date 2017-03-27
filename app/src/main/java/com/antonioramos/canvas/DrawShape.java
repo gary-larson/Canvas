@@ -25,9 +25,7 @@ public class DrawShape extends View {
     private float x_end,y_end;
     private int currentColor = Color.BLACK;
     float strokeWidth =1;
-    ArrayList<Lines> lines;
     ArrayList<MyShape> shapes;
-    Lines newLine;
     boolean lockPoint = false;
     boolean lock= false;
 
@@ -47,7 +45,6 @@ public class DrawShape extends View {
     }
 
     private void setup(AttributeSet attributeSet){
-        lines = new ArrayList<>();
         shapes = new ArrayList<>();
         drawShape = new Paint();
         drawShape.setColor(currentColor);
@@ -58,14 +55,7 @@ public class DrawShape extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-/*
-        for(Lines newLine : lines) {
-            drawShape.setColor(newLine.currentColor);
-            drawShape.setStrokeWidth(newLine.strokeWidth); //is used to update line weight
-            canvas.drawLine(newLine.x_start, newLine.y_start, newLine.x_stop, newLine.y_stop, drawShape); //used to redraw old lines
-        }
-            canvas.drawLine(x_begin, y_begin, x_end, y_end, drawShape); // draw current line
-            */
+
         for(MyShape shape : shapes) {
             drawShape.setColor(shape.currentColor);
             drawShape.setStrokeWidth(shape.strokeWidth);
@@ -107,8 +97,7 @@ public class DrawShape extends View {
             case MotionEvent.ACTION_UP:
                 x_end = event.getX();
                 y_end= event.getY();
-             //   newLine = new Lines(x_begin,y_begin,x_end,y_end,strokeWidth, currentColor);
-             //   lines.add(newLine);
+
                 /*
                 Created by Gary to accommodate multiple shapes
                  */
@@ -125,26 +114,20 @@ public class DrawShape extends View {
 
         return true;
     }
-    //set color to shapes
+    /*
+       sets line shape color -by Antonio
+    */
     public void setColor(int color){
         currentColor = color;
     }
-    //sets line weight, create new object and pass line data and adds object to ArrayList
-    //this method ensures only future lines are effected by line weight setting
+    /*
+      sets line weight, create new object and pass line data and adds object to ArrayList
+      this method ensures only future lines are effected by line weight setting -by Antonio
+   */
     public void setLineWeight(int weight){
         DisplayMetrics dm = getResources().getDisplayMetrics();
         strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,weight,dm);
-        newLine = new Lines(0,0,0,0, strokeWidth, currentColor);
-        lines.add(newLine);
     }
-    //redraws canvas
-    /*
-    removed by Gary for replacement function
-     */
- /*   public void setList(ArrayList<Lines> line){
-        lines = line;
-        invalidate();
-    } */
 
     /*
     Created by Gary to work with shapes
@@ -153,21 +136,22 @@ public class DrawShape extends View {
         this.shapes = shapes;
         invalidate();
     }
-    //passes line arraylist to main for saving
-    public ArrayList<Lines> getList(){
 
-        return lines;
-
-    }
-
+    /*
+       returns ArrayList<Myshape> to main for saving - by Gary & Antonio
+    */
     public ArrayList<MyShape> getMyList() {
         return shapes;
     }
-    //locks start point
+    /*
+      locks start point in place -by Antonio
+   */
     public void setLock(boolean lockStartPoint){
        lock = lockStartPoint;
     }
-    //unlocks start point
+    /*
+     unlocks start point -by Antonio
+   */
     public void unLock(boolean unlockStartPoint){
         lockPoint =lock = unlockStartPoint;
     }
