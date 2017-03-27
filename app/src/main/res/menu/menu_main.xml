@@ -21,6 +21,11 @@
         android:title="@string/action_color"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_clear"
+        android:orderInCategory="90"
+        android:title="@string/action_clear"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_about"
         android:orderInCategory="120"
         android:title="@string/action_about"

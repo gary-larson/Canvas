@@ -108,6 +108,10 @@ public class DrawShape extends View {
                     MyRectangle newMyRectangle = new MyRectangle(x_begin,y_begin,x_end,y_end,strokeWidth, currentColor);
                     shapes.add(newMyRectangle);
                 }
+                x_begin = 0f;
+                y_begin = 0f;
+                x_end = 0f;
+                y_end = 0f;
                 invalidate();
                 break;
         }
@@ -134,6 +138,15 @@ public class DrawShape extends View {
      */
     public void setList(ArrayList<MyShape> shapes){
         this.shapes = shapes;
+        invalidate();
+    }
+
+    /*
+    created by Gary
+    clears the ArrayList<MyShape>
+     */
+    public void ClearList () {
+        this.shapes.clear();
         invalidate();
     }
 
