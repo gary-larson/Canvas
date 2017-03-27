@@ -9,29 +9,20 @@
         app:showAsAction="never" />
     <item
         android:id="@+id/action_line"
-
-        android:orderInCategory="40"
-        android:title="@string/action_line"
-        app:showAsAction="never" />
+        android:orderInCategory="50"
+        android:title="@string/action_line" />
     <item
         android:id="@+id/action_rectangle"
-        android:orderInCategory="50"
-        android:title="@string/action_rectangle"
-        app:showAsAction="never" />
-
+        android:orderInCategory="60"
+        android:title="@string/action_rectangle" />
     <item
         android:id="@+id/action_color"
-        android:orderInCategory="60"
+        android:orderInCategory="80"
         android:title="@string/action_color"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_clear"
-        android:orderInCategory="70"
-        android:title="@string/action_clear"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/action_about"
-        android:orderInCategory="90"
+        android:orderInCategory="120"
         android:title="@string/action_about"
         app:showAsAction="never" />
 </menu>
