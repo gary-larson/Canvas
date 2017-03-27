@@ -136,6 +136,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         } else if (id == R.id.action_about) {
             Intent intent = new Intent(getApplicationContext(), AboutActivity.class);
             startActivity(intent);
+        } else if (id == R.id.action_clear) {
+            DrawShape drawShape = (DrawShape) findViewById(R.id.canvas);
+            drawShape.ClearList();
         }
         return super.onOptionsItemSelected(item);
     }

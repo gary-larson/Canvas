@@ -4,6 +4,7 @@
     <string name="action_rectangle">Draw Rectangle</string>
     <string name="action_line">Draw Line</string>
     <string name="action_color">Choose Color</string>
+    <string name="action_clear">Clear</string>
     <string name="action_about">About</string>
     <string name="color_title">Pick the color of your choice</string>
     <string name="color_button_label">Return</string>
