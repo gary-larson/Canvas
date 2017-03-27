@@ -9,6 +9,7 @@
         app:showAsAction="never" />
     <item
         android:id="@+id/action_line"
+
         android:orderInCategory="40"
         android:title="@string/action_line"
         app:showAsAction="never" />
@@ -17,6 +18,7 @@
         android:orderInCategory="50"
         android:title="@string/action_rectangle"
         app:showAsAction="never" />
+
     <item
         android:id="@+id/action_color"
         android:orderInCategory="60"

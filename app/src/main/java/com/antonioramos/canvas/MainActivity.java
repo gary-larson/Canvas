@@ -4,7 +4,7 @@
 * 1) using a spinner to set the line width
 * 2) saving what was drawn
 * 3) colorpicker
-* 4)
+* 4) lock/unlock starting point in place
  */
 package com.antonioramos.canvas;
 
@@ -36,15 +36,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
+        View.OnClickListener
 {
     private static final String DATA_FILE = "canvas.txt";
-    private ArrayList<Lines> lines = new ArrayList<>();
     private ArrayList<MyShape> shapes = new ArrayList<>();
-    //  private List<Lines> returnList = new ArrayList<>();
     private DrawShape drawShape;
-    private int count = -1;
-    private Lines  help;
     public static String shapeType = "line";
 
     private static final int COLOR_RESULT = 110;
@@ -68,28 +65,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
-        findViewById(R.id.lock_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DrawShape drawShape =(DrawShape)findViewById(R.id.canvas);
-                drawShape.setLock(true);
-            }
-        });
-        findViewById(R.id.unLock_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DrawShape drawShape =(DrawShape)findViewById(R.id.canvas);
-                drawShape.unLock(false);
-            }
-        });
-
-
         setSpinner(R.id.line_spinner,R.array.lineWeight_spinner);
-
     }
-   //*****************************************************************************************
-   // method to setup spinner
-    //******************************************************************************************
+    /*
+   method to setup spinner -by Antonio
+   */
     private void setSpinner(int id, int spinnerArray){
         ArrayAdapter adapter = ArrayAdapter.createFromResource(this, spinnerArray, android.R.layout.simple_spinner_item);
         Spinner spinner = (Spinner) findViewById(id);
@@ -103,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -142,11 +121,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
         return super.onOptionsItemSelected(item);
     }
-//else if (id == R.id.action_color)
-
-    //*****************************************************************************************
-    // Spinner method changes line weight
-   //******************************************************************************************
+    /*
+    Spinner method changes line weight -by Antonio
+    */
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         DrawShape drawShape =(DrawShape)findViewById(R.id.canvas);
@@ -155,9 +132,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
-
     }
-
     /*
     Code created by Gary
     retrieves the result from calling the intent ColorActivity to select a color
@@ -180,31 +155,24 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
-
+    /*
+    method will call readData and send collected data to DrawShape class -by Antonio
+    */
     @Override
     protected void onResume() {
         super.onResume();
-
         readData();
-
-
         DrawShape drawShape = (DrawShape) findViewById(R.id.canvas);
-      //  drawShape.setList(lines);
         drawShape.setList(shapes);
-
-
     }
+    /*
+    method will retrieve ArrayList data from a file and load ArrayList<MyShape>  -by Antonio
+    */
     public void readData(){
         try {
             Log.i("READ", "entered read");
             FileInputStream fis = openFileInput(DATA_FILE);
-
             ObjectInputStream objectInStream = new ObjectInputStream(fis);
-
-          //  count = objectInStream.readInt(); // Get the number of regions
-
-         //   lines = (ArrayList<Lines>) objectInStream.readObject();
-            // replaced above to save ArrayList<MyShape>
             shapes = (ArrayList<MyShape>) objectInStream.readObject();
 
             fis.close();
@@ -214,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
         catch (IOException e) {
             e.printStackTrace();
-            Log.e("WRITE_ERR", "Cannot save data: " + e.getMessage());
+            Log.e("READ", "Can not find Data: " + e.getMessage());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -223,56 +191,47 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onPause() {
         super.onPause();
-        drawShape = (DrawShape) findViewById(R.id.canvas);
-        lines = drawShape.getList();
-        Log.e("size", "***" +lines.size());
         saveData();
-
-
-
     }
+    /*
+   method will retrieve ArrayList<MyShape> from DrawShape class and save data to a file -by Antonio
+   */
     public void saveData() {
         drawShape = (DrawShape) findViewById(R.id.canvas);
-        lines = drawShape.getList();
         shapes = drawShape.getMyList();
-
-        Log.e("size", "***" +lines.size());
-
 
         try {
 
             FileOutputStream fis = openFileOutput(DATA_FILE, Context.MODE_PRIVATE);
-            //new FileOutputStream(new File(getFilesDir(),DATA_FILE));//
-            //
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fis);
-
-   //         objectOutputStream.writeInt(shapes.size());
-    //        objectOutputStream.writeInt(lines.size());
-     //       Log.e("size", "***" +lines.size());
-
-    /*        for(Lines line:lines){
-                objectOutputStream.writeObject(lines);
-            } */
-
-   //         for(MyShape shape : shapes) {
-            // replaced above to save ArrayList<MyShape>
-                objectOutputStream.writeObject(shapes);
-     //       }
+            objectOutputStream.writeObject(shapes);
             fis.close();
+            Log.e("writeData", "*************************************************** ");
 
-
-            Log.e("wirteData", "*************************************************** ");
-
-            //********************************************************************
-            //if file not found will display toast message and create a StackTraces message
-            //********************************************************************
         } catch (FileNotFoundException e) {
-            Log.e("WRITE_ERR", "Cannot save data: " + e.getMessage());
+            Log.e("WRITE", "Cannot save data: " + e.getMessage());
             e.printStackTrace();
             //Toast.makeText(this, "Error saving data", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
-            Log.e("WRITE_ERR", "Cannot save data: " + e.getMessage());
+            Log.e("WRITE", "Cannot save data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        int id = view.getId();
+        DrawShape drawShape =(DrawShape)findViewById(R.id.canvas);
+        drawShape.setLock(true);
+
+        if(id == R.id.lock_button){
+            drawShape.setLock(true);
+        }
+        else if(id == R.id.unLock_button){
+            drawShape.setLock(false);
+        }
+        else{
+
         }
     }
 }
