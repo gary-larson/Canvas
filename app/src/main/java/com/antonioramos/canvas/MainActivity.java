@@ -1,13 +1,16 @@
 /*
 * Developed by Antonio Ramos and Gary Larson
 * These are the 4 additional features
-* 1) save drawing
+* 1) save/load drawing
 *   feature will allow user to save current drawing when onPause is active and redraw canvas when
-*   onResume is active
-*       methods used- MainActivity(readData, saveData, onPause, onResume)
-*                     DrawShape (getMyList, setList)
+*   onResume is active if selected from menu user can save and load files they name
+*       methods used- MainActivity(readData, saveData, onPause, onResume, onOptionsItemSelected,
+*       saveFile, loadFile) DrawShape (getMyList, setList)
 *
 * 2) colorpicker
+*   feature allows you to select a color from a color heel image
+*       methods used MainActivity (onOptionsItemSelected, onActivityResult)
+*           DrawShape (setColor) ColorActivity (all)
 * 3) lock/unlock starting point in place
 *    feature will lock starting point in place and allow user to draw different shape with the
 *    same starting point
@@ -27,15 +30,19 @@
 package com.antonioramos.canvas;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
@@ -43,6 +50,7 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,13 +67,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         View.OnClickListener
 {
     private static final String DATA_FILE = "canvas.txt";
+    private static final String NAME_FILE = "filename.txt";
     private ArrayList<MyShape> shapes = new ArrayList<>();
+    private ArrayList<String> fileList = new ArrayList<>();
     private DrawShape drawShape;
     public static String shapeType = "line";
 
     private static final int COLOR_RESULT = 110;
     public static final String COLOR_CHOICE_KEY = "currentColor";
-     private int [] buttonId = {R.id.lock_button,R.id.ball_button,R.id.clearLast_button};
+    private int [] buttonId = {R.id.lock_button,R.id.ball_button,R.id.clearLast_button};
     private boolean checkLock;
     private boolean checkBall;
 
@@ -119,24 +129,51 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         } else if (id == R.id.action_color) {
             Intent intent = new Intent(getApplicationContext(), ColorActivity.class);
             startActivityForResult(intent, COLOR_RESULT);
+            return true;
             /*
             Created by Gary
             sets ShapeType to rectangle
              */
         } else if (id == R.id.action_rectangle) {
             shapeType = "rectangle";
+            return true;
             /*
             Created by Gary
-            sets ShapeType to rectangle
+            sets ShapeType to line
              */
         } else if (id == R.id.action_line) {
             shapeType = "line";
+            return true;
+            /*
+            Created by Gary
+            loads About Activity
+             */
         } else if (id == R.id.action_about) {
             Intent intent = new Intent(getApplicationContext(), AboutActivity.class);
             startActivity(intent);
+            return true;
+            /*
+            Created by Gary
+            clears shapes
+             */
         } else if (id == R.id.action_clear) {
             DrawShape drawShape = (DrawShape) findViewById(R.id.canvas);
             drawShape.ClearList();
+            return true;
+            /*
+            Created by Gary
+            saves shapes to file named by user
+            */
+        } else if (id == R.id.action_save) {
+            saveFile();
+            return true;
+            /*
+            Created by Gary
+            loads a previously saved file
+            */
+        } else if (id == R.id.action_load) {
+            loadFile();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -176,27 +213,96 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
     /*
     method will call readData and send collected data to DrawShape class -by Antonio
+    modified by Gary
     */
     @Override
     protected void onResume() {
         super.onResume();
-        readData();
-        DrawShape drawShape = (DrawShape) findViewById(R.id.canvas);
-        drawShape.setList(shapes);
+        ArrayList al = readData(DATA_FILE);
+        if (al != null) {
+            shapes = (ArrayList<MyShape>) al;
+            DrawShape drawShape = (DrawShape) findViewById(R.id.canvas);
+            drawShape.setList(shapes);
+        }
     }
+
+    /*
+    Created by Gary
+    allows the user to save file to a specific name
+     */
+    private void saveFile (){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.save_dialog_title);
+        final EditText et = new EditText(this);
+        et.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(et);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                String fileName = et.getText().toString() + ".txt";
+                fileList = (ArrayList<String>) readData (NAME_FILE);
+                if (!fileList.contains(fileName)) {
+                    drawShape = (DrawShape) findViewById(R.id.canvas);
+                    shapes = drawShape.getMyList();
+                    saveData(fileName, shapes);
+                    fileList.add(fileName);
+                    saveData(NAME_FILE, fileList);
+                } else {
+                    Toast.makeText(MainActivity.this, "File Name Used", Toast.LENGTH_SHORT).show();
+                }
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+
+    /*
+    Created by Gary
+    allows the user to load a file previously saved by filename
+     */
+    private void loadFile() {
+        fileList = (ArrayList<String>) readData (NAME_FILE);
+        if (fileList.isEmpty()) {
+            Toast.makeText(MainActivity.this, "No Files have been saved", Toast.LENGTH_SHORT).show();
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.save_dialog_title);
+            String sa[] = new String[fileList.size()];
+            sa = fileList.toArray(sa);
+            builder.setItems(sa, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int i) {
+                    ArrayList al = readData(fileList.get(i));
+                    if (al != null) {
+                        shapes = (ArrayList<MyShape>) al;
+                        DrawShape drawShape = (DrawShape) findViewById(R.id.canvas);
+                        drawShape.setList(shapes);
+                    }
+                    dialog.dismiss();
+                }
+            });
+            builder.show();
+        }
+    }
+
     /*
     method will retrieve ArrayList data from a file and load ArrayList<MyShape>  -by Antonio
     */
-    public void readData(){
+    public ArrayList readData(String fileName){
+        ArrayList al = null;
         try {
             Log.i("READ", "entered read");
-            FileInputStream fis = openFileInput(DATA_FILE);
+            FileInputStream fis = openFileInput(fileName);
             ObjectInputStream objectInStream = new ObjectInputStream(fis);
-            shapes = (ArrayList<MyShape>) objectInStream.readObject();
+            al =  (ArrayList) objectInStream.readObject();
 
             fis.close();
         }catch (FileNotFoundException e) {
-            // Log.i("INFO", "---------- Read Exception");
+            Log.i("INFO", "---------- Read Exception");
             // ok if file does not exist
         }
         catch (IOException e) {
@@ -205,25 +311,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+        return al;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        saveData();
+        drawShape = (DrawShape) findViewById(R.id.canvas);
+        shapes = drawShape.getMyList();
+        saveData(DATA_FILE, shapes);
     }
     /*
    method will retrieve ArrayList<MyShape> from DrawShape class and save data to a file -by Antonio
+   modified by Gary
    */
-    public void saveData() {
-        drawShape = (DrawShape) findViewById(R.id.canvas);
-        shapes = drawShape.getMyList();
+    public void saveData(String filename, ArrayList al) {
+      //  drawShape = (DrawShape) findViewById(R.id.canvas);
+      //  shapes = drawShape.getMyList();
 
         try {
 
-            FileOutputStream fis = openFileOutput(DATA_FILE, Context.MODE_PRIVATE);
+            FileOutputStream fis = openFileOutput(filename, Context.MODE_PRIVATE);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fis);
-            objectOutputStream.writeObject(shapes);
+            objectOutputStream.writeObject(al);
             fis.close();
             Log.e("writeData", "*************************************************** ");
 
