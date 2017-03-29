@@ -240,6 +240,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             public void onClick(DialogInterface dialog, int id) {
                 String fileName = et.getText().toString() + ".txt";
                 fileList = (ArrayList<String>) readData (NAME_FILE);
+                if (fileList == null) {
+                    fileList = new ArrayList<>(0);
+                }
                 if (!fileList.contains(fileName)) {
                     drawShape = (DrawShape) findViewById(R.id.canvas);
                     shapes = drawShape.getMyList();
